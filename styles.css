@@ -273,6 +273,7 @@ button {
     inset -5px -5px 0 rgba(0, 0, 0, 0.2),
     0 5px 0 #050809,
     0 12px 18px rgba(0, 0, 0, 0.35);
+  pointer-events: none;
 }
 
 .piece img {
@@ -281,6 +282,9 @@ button {
   height: 82%;
   object-fit: contain;
   filter: drop-shadow(0 2px 1px rgba(255, 255, 255, 0.26));
+  pointer-events: none;
+  user-select: none;
+  -webkit-user-drag: none;
 }
 
 .rank-labels,
