@@ -4,6 +4,8 @@ Juego estático responsive inspirado en la mecánica de conectar colores: une ca
 
 La interfaz sigue el estilo visual de GOBLINAJEDREZ CazaPiezas: HUD compacto, fondo oscuro animado, acentos cian/naranja, botones arcade y logo Goblinajedrez.
 
+Incluye 10 niveles generados desde soluciones completas. Cada nivel cubre las 64 casillas y el juego calcula automaticamente los extremos visibles de cada pareja.
+
 ## Publicar en GitHub Pages
 
 1. Sube `index.html`, `styles.css` y `app.js` a la rama principal del repositorio.
