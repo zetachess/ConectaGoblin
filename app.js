@@ -1,4 +1,6 @@
 const board = document.getElementById("board");
+const overlay = document.getElementById("overlay");
+const startButton = document.getElementById("startButton");
 const levelLabel = document.getElementById("levelLabel");
 const moveCount = document.getElementById("moveCount");
 const bestCount = document.getElementById("bestCount");
@@ -10,65 +12,48 @@ const nextButton = document.getElementById("nextButton");
 const levelButtons = [...document.querySelectorAll(".level-button")];
 
 const pieces = {
-  ruby: { color: "#e64b58", icon: "♜" },
-  gold: { color: "#e1aa20", icon: "♞" },
-  mint: { color: "#24b36b", icon: "♝" },
-  sky: { color: "#2f88e6", icon: "♛" },
-  violet: { color: "#9856d8", icon: "♚" },
-  ember: { color: "#ef7631", icon: "♟" }
+  ruby: { color: "#ff7680", icon: "R" },
+  gold: { color: "#fff3bd", icon: "N" },
+  mint: { color: "#5de0cb", icon: "B" },
+  sky: { color: "#7fcdd8", icon: "Q" },
+  violet: { color: "#b990ff", icon: "K" },
+  ember: { color: "#ff7a45", icon: "P" },
+  teal: { color: "#73ead9", icon: "C" },
+  lime: { color: "#a9f071", icon: "G" }
 };
 
+const colorOrder = ["ruby", "gold", "mint", "sky", "violet", "ember", "teal", "lime"];
+
+function rowEndpoints() {
+  return Object.fromEntries(colorOrder.map((color, row) => [color, [[row, 0], [row, 7]]]));
+}
+
+function columnEndpoints() {
+  return Object.fromEntries(colorOrder.map((color, col) => [color, [[0, col], [7, col]]]));
+}
+
+function mirroredRows() {
+  return Object.fromEntries(colorOrder.map((color, row) => {
+    const start = row % 2 === 0 ? [row, 0] : [row, 7];
+    const end = row % 2 === 0 ? [row, 7] : [row, 0];
+    return [color, [start, end]];
+  }));
+}
+
+function mirroredColumns() {
+  return Object.fromEntries(colorOrder.map((color, col) => {
+    const start = col % 2 === 0 ? [0, col] : [7, col];
+    const end = col % 2 === 0 ? [7, col] : [0, col];
+    return [color, [start, end]];
+  }));
+}
+
 const levels = [
-  {
-    endpoints: {
-      ruby: [[0, 0], [0, 7]],
-      gold: [[1, 0], [1, 7]],
-      mint: [[2, 0], [2, 7]],
-      sky: [[3, 0], [3, 7]],
-      violet: [[4, 0], [4, 7]],
-      ember: [[5, 0], [5, 7]]
-    }
-  },
-  {
-    endpoints: {
-      ruby: [[0, 0], [7, 0]],
-      gold: [[0, 1], [7, 1]],
-      mint: [[0, 2], [7, 2]],
-      sky: [[0, 3], [7, 3]],
-      violet: [[0, 4], [7, 4]],
-      ember: [[0, 5], [7, 5]]
-    }
-  },
-  {
-    endpoints: {
-      ruby: [[0, 0], [7, 7]],
-      gold: [[0, 7], [7, 0]],
-      mint: [[1, 2], [6, 2]],
-      sky: [[1, 5], [6, 5]],
-      violet: [[3, 1], [3, 6]],
-      ember: [[4, 1], [4, 6]]
-    }
-  },
-  {
-    endpoints: {
-      ruby: [[0, 1], [7, 6]],
-      gold: [[0, 6], [7, 1]],
-      mint: [[1, 0], [6, 7]],
-      sky: [[1, 7], [6, 0]],
-      violet: [[2, 3], [5, 3]],
-      ember: [[2, 4], [5, 4]]
-    }
-  },
-  {
-    endpoints: {
-      ruby: [[0, 0], [7, 3]],
-      gold: [[0, 7], [7, 4]],
-      mint: [[3, 0], [4, 7]],
-      sky: [[4, 0], [3, 7]],
-      violet: [[1, 2], [6, 5]],
-      ember: [[1, 5], [6, 2]]
-    }
-  }
+  { name: "Filas reales", endpoints: rowEndpoints() },
+  { name: "Columnas del castillo", endpoints: columnEndpoints() },
+  { name: "Ataque lateral", endpoints: mirroredRows() },
+  { name: "Torres alternas", endpoints: mirroredColumns() },
+  { name: "Corona final", endpoints: rowEndpoints() }
 ];
 
 let levelIndex = 0;
@@ -83,10 +68,6 @@ function key(row, col) {
   return `${row},${col}`;
 }
 
-function parseKey(value) {
-  return value.split(",").map(Number);
-}
-
 function sameCell(a, b) {
   return a && b && a[0] === b[0] && a[1] === b[1];
 }
@@ -94,7 +75,7 @@ function sameCell(a, b) {
 function endpointColor(row, col) {
   const endpoints = levels[levelIndex].endpoints;
   return Object.keys(endpoints).find((color) =>
-    endpoints[color].some((point) => point[0] === row && point[1] === col)
+    endpoints[color].some((point) => sameCell(point, [row, col]))
   );
 }
 
@@ -107,17 +88,19 @@ function isAdjacent(a, b) {
   return Math.abs(a[0] - b[0]) + Math.abs(a[1] - b[1]) === 1;
 }
 
+function bestKey() {
+  return `conectagoblin-best-${levelIndex}`;
+}
+
 function saveBest() {
-  const bestKey = `goblinajedrez-best-${levelIndex}`;
-  const currentBest = Number(localStorage.getItem(bestKey) || 0);
+  const currentBest = Number(localStorage.getItem(bestKey()) || 0);
   if (!currentBest || moves < currentBest) {
-    localStorage.setItem(bestKey, String(moves));
+    localStorage.setItem(bestKey(), String(moves));
   }
 }
 
 function loadBest() {
-  const best = localStorage.getItem(`goblinajedrez-best-${levelIndex}`);
-  bestCount.textContent = best || "--";
+  bestCount.textContent = localStorage.getItem(bestKey()) || "0";
 }
 
 function setStatus(title, text) {
@@ -162,6 +145,7 @@ function renderBoard() {
       const color = Object.keys(endpoints).find((name) =>
         endpoints[name].some((point) => sameCell(point, [row, col]))
       );
+
       if (color) {
         const piece = document.createElement("div");
         piece.className = "piece";
@@ -176,7 +160,7 @@ function renderBoard() {
 }
 
 function refreshHud() {
-  levelLabel.textContent = `Nivel ${levelIndex + 1}`;
+  levelLabel.textContent = String(levelIndex + 1);
   moveCount.textContent = String(moves);
   loadBest();
   levelButtons.forEach((button, index) => button.classList.toggle("active", index === levelIndex));
@@ -190,7 +174,7 @@ function startLevel(index) {
   activePath = [];
   moves = 0;
   isDrawing = false;
-  setStatus("Tu turno.", "Une las piezas iguales. Llena todo el tablero sin pisar otro camino.");
+  setStatus(levels[levelIndex].name, "Une cada pareja y ocupa las 64 casillas.");
   refreshHud();
   renderBoard();
 }
@@ -216,8 +200,9 @@ function beginPath(row, col) {
   clearColor(color);
   activeColor = color;
   activePath = [[row, col]];
+  paths[activeColor] = [...activePath];
   isDrawing = true;
-  setStatus("Camino iniciado.", "Sigue arrastrando por casillas vecinas hasta la pieza igual.");
+  setStatus("Camino activo", "Arrastra por casillas vecinas hasta la pieza igual.");
   renderBoard();
 }
 
@@ -242,7 +227,7 @@ function extendPath(row, col) {
     return;
   }
   if (!canUseCell(row, col, activeColor)) {
-    setStatus("Casilla ocupada.", "Ese camino chocaría con otra pieza o línea.");
+    setStatus("Casilla ocupada", "Ese camino chocaria con otra pieza o linea.");
     return;
   }
   activePath.push(next);
@@ -255,13 +240,15 @@ function finishPath() {
   const endpoints = levels[levelIndex].endpoints[activeColor];
   const last = activePath[activePath.length - 1];
   const completed = endpoints.some((point) => sameCell(point, last)) && activePath.length > 1;
+
   if (!completed) {
     delete paths[activeColor];
-    setStatus("Camino incompleto.", "Termina siempre en la pieza del mismo color.");
+    setStatus("Camino incompleto", "Termina siempre en la pieza del mismo color.");
   } else {
     moves += 1;
-    setStatus("Bien conectado.", "Sigue con las otras piezas hasta completar el tablero.");
+    setStatus("Bien conectado", "Sigue hasta llenar el tablero completo.");
   }
+
   activeColor = null;
   activePath = [];
   isDrawing = false;
@@ -279,12 +266,13 @@ function checkWin() {
   });
   const filled = new Set();
   Object.values(paths).forEach((path) => path.forEach((point) => filled.add(key(point[0], point[1]))));
+
   if (allConnected && filled.size === 64) {
     saveBest();
     refreshHud();
-    setStatus("Nivel completado.", "Goblinajedrez corona el tablero. Pasa al siguiente reto.");
+    setStatus("Nivel completado", "Goblinajedrez corona el tablero. Pasa al siguiente reto.");
   } else if (allConnected) {
-    setStatus("Faltan casillas.", "Todas las parejas están unidas, pero el tablero debe quedar lleno.");
+    setStatus("Faltan casillas", "Todas las parejas estan unidas, pero el tablero debe quedar lleno.");
   }
 }
 
@@ -298,6 +286,7 @@ function pointerCell(event) {
 board.addEventListener("pointerdown", (event) => {
   const cell = pointerCell(event);
   if (!cell) return;
+  overlay.classList.add("hidden");
   board.setPointerCapture(event.pointerId);
   beginPath(cell[0], cell[1]);
 });
@@ -311,6 +300,10 @@ board.addEventListener("pointermove", (event) => {
 board.addEventListener("pointerup", finishPath);
 board.addEventListener("pointercancel", finishPath);
 
+startButton.addEventListener("click", () => {
+  overlay.classList.add("hidden");
+});
+
 undoButton.addEventListener("click", () => {
   const last = history.pop();
   if (!last) return;
@@ -320,7 +313,7 @@ undoButton.addEventListener("click", () => {
   activeColor = null;
   activePath = [];
   isDrawing = false;
-  setStatus("Deshecho.", "Puedes probar otra ruta.");
+  setStatus("Deshecho", "Puedes probar otra ruta.");
   refreshHud();
   renderBoard();
 });
@@ -328,7 +321,10 @@ undoButton.addEventListener("click", () => {
 resetButton.addEventListener("click", () => startLevel(levelIndex));
 nextButton.addEventListener("click", () => startLevel((levelIndex + 1) % levels.length));
 levelButtons.forEach((button) => {
-  button.addEventListener("click", () => startLevel(Number(button.dataset.level)));
+  button.addEventListener("click", () => {
+    overlay.classList.add("hidden");
+    startLevel(Number(button.dataset.level));
+  });
 });
 
 startLevel(0);
