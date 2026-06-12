@@ -54,6 +54,14 @@ function routeSnake() {
   return route;
 }
 
+function routeColumns() {
+  const route = [];
+  for (let col = 0; col < SIZE; col += 1) {
+    for (let row = 0; row < SIZE; row += 1) route.push([row, col]);
+  }
+  return route;
+}
+
 function routeSpiral() {
   const route = [];
   let top = 0;
@@ -106,7 +114,7 @@ function levelFromRoute(name, route, lengths) {
 const levels = [
   levelFromRoute("1. Primer tablero", routeRows(), [5, 5, 5, 5, 5]),
   levelFromRoute("2. Serpiente", routeSnake(), [4, 6, 5, 4, 6]),
-  levelFromRoute("3. Espiral", reverseRoute(routeSpiral()), [6, 4, 5, 6, 4])
+  levelFromRoute("3. Columnas", routeColumns(), [5, 5, 5, 5, 5])
 ];
 
 function validateLevelDefinitions() {
