@@ -209,6 +209,7 @@ function renderBoard() {
         piece.style.setProperty("--piece-color", pieces[color].color);
         img.src = pieces[color].asset;
         img.alt = "";
+        img.draggable = false;
         piece.appendChild(img);
         cell.appendChild(piece);
       }
@@ -330,28 +331,46 @@ function checkWin() {
 }
 
 function pointerCell(event) {
-  const target = document.elementFromPoint(event.clientX, event.clientY);
-  const cell = target?.closest?.(".cell");
-  if (!cell || !board.contains(cell)) return null;
-  return [Number(cell.dataset.row), Number(cell.dataset.col)];
+  const rect = board.getBoundingClientRect();
+  const x = event.clientX - rect.left;
+  const y = event.clientY - rect.top;
+  if (x < 0 || y < 0 || x > rect.width || y > rect.height) return null;
+  const col = Math.min(SIZE - 1, Math.floor((x / rect.width) * SIZE));
+  const row = Math.min(SIZE - 1, Math.floor((y / rect.height) * SIZE));
+  return [row, col];
 }
 
 board.addEventListener("pointerdown", (event) => {
+  event.preventDefault();
   const cell = pointerCell(event);
   if (!cell) return;
   overlay.classList.add("hidden");
-  board.setPointerCapture(event.pointerId);
+  if (board.setPointerCapture) board.setPointerCapture(event.pointerId);
   beginPath(cell[0], cell[1]);
 });
 
 board.addEventListener("pointermove", (event) => {
+  event.preventDefault();
+  if (!isDrawing) return;
   const cell = pointerCell(event);
   if (!cell) return;
   extendPath(cell[0], cell[1]);
 });
 
-board.addEventListener("pointerup", finishPath);
-board.addEventListener("pointercancel", finishPath);
+board.addEventListener("pointerup", (event) => {
+  event.preventDefault();
+  if (board.releasePointerCapture && board.hasPointerCapture?.(event.pointerId)) {
+    board.releasePointerCapture(event.pointerId);
+  }
+  finishPath();
+});
+
+board.addEventListener("pointercancel", (event) => {
+  if (board.releasePointerCapture && board.hasPointerCapture?.(event.pointerId)) {
+    board.releasePointerCapture(event.pointerId);
+  }
+  finishPath();
+});
 
 startButton.addEventListener("click", () => overlay.classList.add("hidden"));
 
