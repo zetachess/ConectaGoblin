@@ -2,6 +2,8 @@
 
 Juego estático responsive inspirado en la mecánica de conectar colores: une cada pareja de piezas sobre un tablero de ajedrez, sin cruzar caminos y rellenando las 64 casillas.
 
+La interfaz sigue el estilo visual de GOBLINAJEDREZ CazaPiezas: HUD compacto, fondo oscuro animado, acentos cian/naranja, botones arcade y logo Goblinajedrez.
+
 ## Publicar en GitHub Pages
 
 1. Sube `index.html`, `styles.css` y `app.js` a la rama principal del repositorio.
