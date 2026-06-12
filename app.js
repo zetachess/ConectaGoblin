@@ -24,37 +24,133 @@ const pieces = {
 
 const colorOrder = ["ruby", "gold", "mint", "sky", "violet", "ember", "teal", "lime"];
 
-function rowEndpoints() {
-  return Object.fromEntries(colorOrder.map((color, row) => [color, [[row, 0], [row, 7]]]));
+function routeRows() {
+  const route = [];
+  for (let row = 0; row < 8; row += 1) {
+    for (let col = 0; col < 8; col += 1) route.push([row, col]);
+  }
+  return route;
 }
 
-function columnEndpoints() {
-  return Object.fromEntries(colorOrder.map((color, col) => [color, [[0, col], [7, col]]]));
+function routeColumns() {
+  const route = [];
+  for (let col = 0; col < 8; col += 1) {
+    for (let row = 0; row < 8; row += 1) route.push([row, col]);
+  }
+  return route;
 }
 
-function mirroredRows() {
-  return Object.fromEntries(colorOrder.map((color, row) => {
-    const start = row % 2 === 0 ? [row, 0] : [row, 7];
-    const end = row % 2 === 0 ? [row, 7] : [row, 0];
-    return [color, [start, end]];
-  }));
+function routeRowSnake() {
+  const route = [];
+  for (let row = 0; row < 8; row += 1) {
+    const cols = [...Array(8).keys()];
+    if (row % 2) cols.reverse();
+    cols.forEach((col) => route.push([row, col]));
+  }
+  return route;
 }
 
-function mirroredColumns() {
-  return Object.fromEntries(colorOrder.map((color, col) => {
-    const start = col % 2 === 0 ? [0, col] : [7, col];
-    const end = col % 2 === 0 ? [7, col] : [0, col];
-    return [color, [start, end]];
-  }));
+function routeColumnSnake() {
+  const route = [];
+  for (let col = 0; col < 8; col += 1) {
+    const rows = [...Array(8).keys()];
+    if (col % 2) rows.reverse();
+    rows.forEach((row) => route.push([row, col]));
+  }
+  return route;
 }
+
+function routeSpiral() {
+  const route = [];
+  let top = 0;
+  let bottom = 7;
+  let left = 0;
+  let right = 7;
+
+  while (top <= bottom && left <= right) {
+    for (let col = left; col <= right; col += 1) route.push([top, col]);
+    top += 1;
+    for (let row = top; row <= bottom; row += 1) route.push([row, right]);
+    right -= 1;
+    if (top <= bottom) {
+      for (let col = right; col >= left; col -= 1) route.push([bottom, col]);
+      bottom -= 1;
+    }
+    if (left <= right) {
+      for (let row = bottom; row >= top; row -= 1) route.push([row, left]);
+      left += 1;
+    }
+  }
+  return route;
+}
+
+function reverseRoute(route) {
+  return [...route].reverse();
+}
+
+function rotateRoute(route) {
+  return route.map(([row, col]) => [col, 7 - row]);
+}
+
+function mirrorRoute(route) {
+  return route.map(([row, col]) => [row, 7 - col]);
+}
+
+function levelFromRoute(name, route, lengths) {
+  const total = lengths.reduce((sum, length) => sum + length, 0);
+  if (route.length !== 64 || total !== 64 || lengths.length !== colorOrder.length) {
+    throw new Error(`Nivel mal definido: ${name}`);
+  }
+
+  let cursor = 0;
+  const solution = {};
+  const endpoints = {};
+
+  colorOrder.forEach((color, index) => {
+    const path = route.slice(cursor, cursor + lengths[index]);
+    solution[color] = path;
+    endpoints[color] = [path[0], path[path.length - 1]];
+    cursor += lengths[index];
+  });
+
+  return { name, solution, endpoints };
+}
+
+const straight = [8, 8, 8, 8, 8, 8, 8, 8];
+const medium = [6, 10, 7, 9, 8, 6, 10, 8];
+const tricky = [7, 9, 8, 6, 11, 5, 10, 8];
+const expert = [5, 12, 6, 10, 9, 7, 8, 7];
 
 const levels = [
-  { name: "Filas reales", endpoints: rowEndpoints() },
-  { name: "Columnas del castillo", endpoints: columnEndpoints() },
-  { name: "Ataque lateral", endpoints: mirroredRows() },
-  { name: "Torres alternas", endpoints: mirroredColumns() },
-  { name: "Corona final", endpoints: rowEndpoints() }
+  levelFromRoute("1. Filas reales", routeRows(), straight),
+  levelFromRoute("2. Columnas del castillo", routeColumns(), straight),
+  levelFromRoute("3. Serpiente lateral", routeRowSnake(), medium),
+  levelFromRoute("4. Torres alternas", routeColumnSnake(), medium),
+  levelFromRoute("5. Espiral del trono", routeSpiral(), tricky),
+  levelFromRoute("6. Espiral inversa", reverseRoute(routeSpiral()), tricky),
+  levelFromRoute("7. Flanco espejo", mirrorRoute(routeRowSnake()), expert),
+  levelFromRoute("8. Ataque rotado", rotateRoute(routeColumnSnake()), expert),
+  levelFromRoute("9. Laberinto dorado", rotateRoute(routeSpiral()), [9, 5, 11, 7, 8, 10, 6, 8]),
+  levelFromRoute("10. Corona Goblin", mirrorRoute(reverseRoute(routeSpiral())), [6, 11, 5, 12, 7, 8, 9, 6])
 ];
+
+function validateLevelDefinitions() {
+  levels.forEach((level) => {
+    const used = new Set();
+    Object.entries(level.solution).forEach(([color, path]) => {
+      path.forEach((point, index) => {
+        used.add(key(point[0], point[1]));
+        const next = path[index + 1];
+        if (next && !isAdjacent(point, next)) {
+          throw new Error(`Ruta rota en ${level.name}: ${color}`);
+        }
+      });
+    });
+    if (used.size !== 64) {
+      throw new Error(`Nivel sin 64 casillas: ${level.name}`);
+    }
+  });
+}
 
 let levelIndex = 0;
 let paths = {};
@@ -327,4 +423,5 @@ levelButtons.forEach((button) => {
   });
 });
 
+validateLevelDefinitions();
 startLevel(0);
