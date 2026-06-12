@@ -169,10 +169,8 @@ button {
   position: relative;
   width: 100%;
   height: 100%;
-  padding: clamp(18px, 3.4vmin, 30px);
-  background:
-    radial-gradient(circle at 50% 18%, rgba(127, 205, 216, 0.12), transparent 36%),
-    #0c1014;
+  padding: 0;
+  background: #10151a;
 }
 
 .board {
@@ -180,13 +178,11 @@ button {
   height: 100%;
   display: grid;
   grid-template-columns: repeat(5, 1fr);
-  border: 4px solid #050809;
-  border-radius: 6px;
+  border: 0;
+  border-radius: 0;
   overflow: hidden;
   background: #10151a;
-  box-shadow:
-    inset 0 0 0 1px rgba(255, 248, 216, 0.16),
-    0 14px 36px rgba(0, 0, 0, 0.38);
+  box-shadow: inset 0 0 0 2px rgba(255, 248, 216, 0.14);
   touch-action: none;
   user-select: none;
 }
@@ -201,14 +197,14 @@ button {
 
 .cell.light {
   background:
-    linear-gradient(135deg, rgba(255, 255, 255, 0.18), transparent 58%),
-    var(--light-square);
+    radial-gradient(circle at 28% 22%, rgba(255, 248, 216, 0.16), transparent 38%),
+    #d6c6ad;
 }
 
 .cell.dark {
   background:
-    linear-gradient(135deg, rgba(255, 255, 255, 0.07), transparent 56%),
-    var(--dark-square);
+    radial-gradient(circle at 28% 22%, rgba(127, 205, 216, 0.10), transparent 40%),
+    #6f8f70;
 }
 
 .cell::before,
@@ -257,31 +253,31 @@ button {
 }
 
 .piece {
-  width: 70%;
+  width: 76%;
   aspect-ratio: 1;
-  border-radius: 8px;
+  border-radius: 16px;
   position: relative;
   z-index: 2;
   display: grid;
   place-items: center;
   background:
-    linear-gradient(135deg, rgba(255, 255, 255, 0.25), transparent 45%),
-    var(--piece-color);
-  border: 3px solid rgba(255, 248, 216, 0.75);
+    radial-gradient(circle at 50% 50%, rgba(5, 8, 10, 0.64), rgba(5, 8, 10, 0.22) 54%, transparent 58%),
+    radial-gradient(circle at 50% 50%, var(--piece-color) 0 55%, transparent 57%);
+  border: 0;
   box-shadow:
-    inset 5px 5px 0 rgba(255, 255, 255, 0.16),
-    inset -5px -5px 0 rgba(0, 0, 0, 0.2),
-    0 5px 0 #050809,
-    0 12px 18px rgba(0, 0, 0, 0.35);
+    0 0 18px var(--piece-color),
+    0 10px 18px rgba(0, 0, 0, 0.34);
   pointer-events: none;
 }
 
 .piece img {
   display: block;
-  width: 82%;
-  height: 82%;
+  width: 74%;
+  height: 74%;
   object-fit: contain;
-  filter: drop-shadow(0 2px 1px rgba(255, 255, 255, 0.26));
+  filter:
+    drop-shadow(0 2px 0 rgba(255, 248, 216, 0.25))
+    drop-shadow(0 6px 7px rgba(0, 0, 0, 0.45));
   pointer-events: none;
   user-select: none;
   -webkit-user-drag: none;
@@ -298,6 +294,7 @@ button {
 }
 
 .rank-labels {
+  display: none;
   top: clamp(18px, 3.4vmin, 30px);
   bottom: clamp(18px, 3.4vmin, 30px);
   right: 7px;
@@ -306,10 +303,11 @@ button {
 }
 
 .file-labels {
+  display: none;
   left: clamp(18px, 3.4vmin, 30px);
   right: clamp(18px, 3.4vmin, 30px);
   bottom: 6px;
-  display: grid;
+  display: none;
   grid-template-columns: repeat(5, 1fr);
   text-align: center;
 }
