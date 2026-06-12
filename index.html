@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Goblinajedrez Flow</title>
+  <meta name="description" content="Juego responsive de conectar colores sobre un tablero de ajedrez con Goblinajedrez.">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <main class="game-shell">
+    <section class="topbar" aria-label="Panel principal">
+      <div class="brand">
+        <div class="mascot" aria-hidden="true">
+          <svg viewBox="0 0 120 120" role="img">
+            <defs>
+              <linearGradient id="hood" x1="0" x2="1" y1="0" y2="1">
+                <stop offset="0" stop-color="#174f38"/>
+                <stop offset="1" stop-color="#071f18"/>
+              </linearGradient>
+            </defs>
+            <path d="M13 68 2 42l31 8c7-13 18-22 32-22s25 9 32 22l31-8-11 26c2 7 2 14 0 21-6 20-26 29-52 29S19 109 13 89c-2-7-2-14 0-21Z" fill="url(#hood)"/>
+            <path d="M30 64c7-20 21-31 35-31s28 11 35 31c7 20-6 41-35 41S23 84 30 64Z" fill="#80c66e"/>
+            <path d="M25 53 9 47l11 17Zm80 0 16-6-11 17Z" fill="#80c66e"/>
+            <circle cx="48" cy="65" r="7" fill="#10221b"/>
+            <circle cx="82" cy="65" r="7" fill="#10221b"/>
+            <circle cx="50" cy="62" r="2" fill="#fff7c8"/>
+            <circle cx="84" cy="62" r="2" fill="#fff7c8"/>
+            <path d="M57 80c5 5 12 5 17 0" fill="none" stroke="#163327" stroke-width="5" stroke-linecap="round"/>
+            <path d="M43 42c6-8 15-12 22-12 8 0 16 4 22 12" fill="none" stroke="#f1d36b" stroke-width="6" stroke-linecap="round"/>
+            <path d="M58 15h14v16H58z" fill="#f5e7b6"/>
+            <path d="M51 15h28v8H51zM56 7h8v8h-8zm16 0h8v8h-8z" fill="#f1d36b"/>
+          </svg>
+        </div>
+        <div>
+          <p>Goblinajedrez</p>
+          <h1>Conecta Colores</h1>
+        </div>
+      </div>
+      <div class="stats" aria-label="Marcador">
+        <div><span id="levelLabel">Nivel 1</span><small>Nivel</small></div>
+        <div><span id="moveCount">0</span><small>Movs</small></div>
+        <div><span id="bestCount">--</span><small>Mejor</small></div>
+      </div>
+    </section>
+
+    <section class="play-area">
+      <div class="side-panel">
+        <div class="speech">
+          <strong id="statusTitle">Tu turno.</strong>
+          <span id="statusText">Une las piezas iguales. Toca y arrastra desde una pieza hasta su pareja.</span>
+        </div>
+        <div class="level-picker" aria-label="Seleccionar nivel">
+          <button class="level-button active" data-level="0">1</button>
+          <button class="level-button" data-level="1">2</button>
+          <button class="level-button" data-level="2">3</button>
+          <button class="level-button" data-level="3">4</button>
+          <button class="level-button" data-level="4">5</button>
+        </div>
+        <div class="actions">
+          <button id="undoButton" type="button" title="Deshacer">↶</button>
+          <button id="resetButton" type="button" title="Reiniciar">↺</button>
+          <button id="nextButton" type="button" title="Siguiente nivel">▶</button>
+        </div>
+      </div>
+
+      <div class="board-wrap">
+        <div class="rank-labels" aria-hidden="true">
+          <span>8</span><span>7</span><span>6</span><span>5</span><span>4</span><span>3</span><span>2</span><span>1</span>
+        </div>
+        <div id="board" class="board" aria-label="Tablero de juego"></div>
+        <div class="file-labels" aria-hidden="true">
+          <span>a</span><span>b</span><span>c</span><span>d</span><span>e</span><span>f</span><span>g</span><span>h</span>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>
