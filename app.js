@@ -11,51 +11,45 @@ const resetButton = document.getElementById("resetButton");
 const nextButton = document.getElementById("nextButton");
 const levelButtons = [...document.querySelectorAll(".level-button")];
 
+const SIZE = 5;
+const TOTAL_CELLS = SIZE * SIZE;
+
 const pieces = {
-  ruby: { color: "#ff7680", icon: "R" },
-  gold: { color: "#fff3bd", icon: "N" },
-  mint: { color: "#5de0cb", icon: "B" },
-  sky: { color: "#7fcdd8", icon: "Q" },
-  violet: { color: "#b990ff", icon: "K" },
-  ember: { color: "#ff7a45", icon: "P" },
-  teal: { color: "#73ead9", icon: "C" },
-  lime: { color: "#a9f071", icon: "G" }
+  pawn: { color: "#fff3bd", asset: "assets/pieces/cburnett/wP.svg" },
+  knight: { color: "#7fcdd8", asset: "assets/pieces/cburnett/wN.svg" },
+  bishop: { color: "#b990ff", asset: "assets/pieces/cburnett/wB.svg" },
+  rook: { color: "#ff9b45", asset: "assets/pieces/cburnett/wR.svg" },
+  queen: { color: "#ff7680", asset: "assets/pieces/cburnett/wQ.svg" }
 };
 
-const colorOrder = ["ruby", "gold", "mint", "sky", "violet", "ember", "teal", "lime"];
+const colorOrder = ["pawn", "knight", "bishop", "rook", "queen"];
+
+function key(row, col) {
+  return `${row},${col}`;
+}
+
+function sameCell(a, b) {
+  return a && b && a[0] === b[0] && a[1] === b[1];
+}
+
+function isAdjacent(a, b) {
+  return Math.abs(a[0] - b[0]) + Math.abs(a[1] - b[1]) === 1;
+}
 
 function routeRows() {
   const route = [];
-  for (let row = 0; row < 8; row += 1) {
-    for (let col = 0; col < 8; col += 1) route.push([row, col]);
+  for (let row = 0; row < SIZE; row += 1) {
+    for (let col = 0; col < SIZE; col += 1) route.push([row, col]);
   }
   return route;
 }
 
-function routeColumns() {
+function routeSnake() {
   const route = [];
-  for (let col = 0; col < 8; col += 1) {
-    for (let row = 0; row < 8; row += 1) route.push([row, col]);
-  }
-  return route;
-}
-
-function routeRowSnake() {
-  const route = [];
-  for (let row = 0; row < 8; row += 1) {
-    const cols = [...Array(8).keys()];
+  for (let row = 0; row < SIZE; row += 1) {
+    const cols = [...Array(SIZE).keys()];
     if (row % 2) cols.reverse();
     cols.forEach((col) => route.push([row, col]));
-  }
-  return route;
-}
-
-function routeColumnSnake() {
-  const route = [];
-  for (let col = 0; col < 8; col += 1) {
-    const rows = [...Array(8).keys()];
-    if (col % 2) rows.reverse();
-    rows.forEach((row) => route.push([row, col]));
   }
   return route;
 }
@@ -63,9 +57,9 @@ function routeColumnSnake() {
 function routeSpiral() {
   const route = [];
   let top = 0;
-  let bottom = 7;
+  let bottom = SIZE - 1;
   let left = 0;
-  let right = 7;
+  let right = SIZE - 1;
 
   while (top <= bottom && left <= right) {
     for (let col = left; col <= right; col += 1) route.push([top, col]);
@@ -81,6 +75,7 @@ function routeSpiral() {
       left += 1;
     }
   }
+
   return route;
 }
 
@@ -88,17 +83,9 @@ function reverseRoute(route) {
   return [...route].reverse();
 }
 
-function rotateRoute(route) {
-  return route.map(([row, col]) => [col, 7 - row]);
-}
-
-function mirrorRoute(route) {
-  return route.map(([row, col]) => [row, 7 - col]);
-}
-
 function levelFromRoute(name, route, lengths) {
   const total = lengths.reduce((sum, length) => sum + length, 0);
-  if (route.length !== 64 || total !== 64 || lengths.length !== colorOrder.length) {
+  if (route.length !== TOTAL_CELLS || total !== TOTAL_CELLS || lengths.length !== colorOrder.length) {
     throw new Error(`Nivel mal definido: ${name}`);
   }
 
@@ -116,22 +103,10 @@ function levelFromRoute(name, route, lengths) {
   return { name, solution, endpoints };
 }
 
-const straight = [8, 8, 8, 8, 8, 8, 8, 8];
-const medium = [6, 10, 7, 9, 8, 6, 10, 8];
-const tricky = [7, 9, 8, 6, 11, 5, 10, 8];
-const expert = [5, 12, 6, 10, 9, 7, 8, 7];
-
 const levels = [
-  levelFromRoute("1. Filas reales", routeRows(), straight),
-  levelFromRoute("2. Columnas del castillo", routeColumns(), straight),
-  levelFromRoute("3. Serpiente lateral", routeRowSnake(), medium),
-  levelFromRoute("4. Torres alternas", routeColumnSnake(), medium),
-  levelFromRoute("5. Espiral del trono", routeSpiral(), tricky),
-  levelFromRoute("6. Espiral inversa", reverseRoute(routeSpiral()), tricky),
-  levelFromRoute("7. Flanco espejo", mirrorRoute(routeRowSnake()), expert),
-  levelFromRoute("8. Ataque rotado", rotateRoute(routeColumnSnake()), expert),
-  levelFromRoute("9. Laberinto dorado", rotateRoute(routeSpiral()), [9, 5, 11, 7, 8, 10, 6, 8]),
-  levelFromRoute("10. Corona Goblin", mirrorRoute(reverseRoute(routeSpiral())), [6, 11, 5, 12, 7, 8, 9, 6])
+  levelFromRoute("1. Primer tablero", routeRows(), [5, 5, 5, 5, 5]),
+  levelFromRoute("2. Serpiente", routeSnake(), [4, 6, 5, 4, 6]),
+  levelFromRoute("3. Espiral", reverseRoute(routeSpiral()), [6, 4, 5, 6, 4])
 ];
 
 function validateLevelDefinitions() {
@@ -146,8 +121,8 @@ function validateLevelDefinitions() {
         }
       });
     });
-    if (used.size !== 64) {
-      throw new Error(`Nivel sin 64 casillas: ${level.name}`);
+    if (used.size !== TOTAL_CELLS) {
+      throw new Error(`Nivel sin ${TOTAL_CELLS} casillas: ${level.name}`);
     }
   });
 }
@@ -159,14 +134,6 @@ let activeColor = null;
 let activePath = [];
 let moves = 0;
 let isDrawing = false;
-
-function key(row, col) {
-  return `${row},${col}`;
-}
-
-function sameCell(a, b) {
-  return a && b && a[0] === b[0] && a[1] === b[1];
-}
 
 function endpointColor(row, col) {
   const endpoints = levels[levelIndex].endpoints;
@@ -180,19 +147,13 @@ function cellOwner(row, col) {
   return Object.keys(paths).find((color) => paths[color].some((point) => key(point[0], point[1]) === cellKey));
 }
 
-function isAdjacent(a, b) {
-  return Math.abs(a[0] - b[0]) + Math.abs(a[1] - b[1]) === 1;
-}
-
 function bestKey() {
-  return `conectagoblin-best-${levelIndex}`;
+  return `conectagoblin-5x5-best-${levelIndex}`;
 }
 
 function saveBest() {
   const currentBest = Number(localStorage.getItem(bestKey()) || 0);
-  if (!currentBest || moves < currentBest) {
-    localStorage.setItem(bestKey(), String(moves));
-  }
+  if (!currentBest || moves < currentBest) localStorage.setItem(bestKey(), String(moves));
 }
 
 function loadBest() {
@@ -224,11 +185,10 @@ function renderBoard() {
     });
   });
 
-  for (let row = 0; row < 8; row += 1) {
-    for (let col = 0; col < 8; col += 1) {
+  for (let row = 0; row < SIZE; row += 1) {
+    for (let col = 0; col < SIZE; col += 1) {
       const cell = document.createElement("div");
-      const cellKey = key(row, col);
-      const segment = segmentMap.get(cellKey);
+      const segment = segmentMap.get(key(row, col));
       cell.className = `cell ${(row + col) % 2 ? "dark" : "light"}`;
       cell.dataset.row = row;
       cell.dataset.col = col;
@@ -244,9 +204,12 @@ function renderBoard() {
 
       if (color) {
         const piece = document.createElement("div");
+        const img = document.createElement("img");
         piece.className = "piece";
-        piece.dataset.piece = pieces[color].icon;
         piece.style.setProperty("--piece-color", pieces[color].color);
+        img.src = pieces[color].asset;
+        img.alt = "";
+        piece.appendChild(img);
         cell.appendChild(piece);
       }
 
@@ -270,15 +233,9 @@ function startLevel(index) {
   activePath = [];
   moves = 0;
   isDrawing = false;
-  setStatus(levels[levelIndex].name, "Une cada pareja y ocupa las 64 casillas.");
+  setStatus(levels[levelIndex].name, "Une las piezas iguales y ocupa las 25 casillas.");
   refreshHud();
   renderBoard();
-}
-
-function clearColor(color) {
-  if (paths[color]) {
-    delete paths[color];
-  }
 }
 
 function canUseCell(row, col, color) {
@@ -293,7 +250,7 @@ function beginPath(row, col) {
   const color = endpointColor(row, col);
   if (!color) return;
   history.push(JSON.stringify({ paths, moves }));
-  clearColor(color);
+  delete paths[color];
   activeColor = color;
   activePath = [[row, col]];
   paths[activeColor] = [...activePath];
@@ -363,10 +320,10 @@ function checkWin() {
   const filled = new Set();
   Object.values(paths).forEach((path) => path.forEach((point) => filled.add(key(point[0], point[1]))));
 
-  if (allConnected && filled.size === 64) {
+  if (allConnected && filled.size === TOTAL_CELLS) {
     saveBest();
     refreshHud();
-    setStatus("Nivel completado", "Goblinajedrez corona el tablero. Pasa al siguiente reto.");
+    setStatus("Nivel completado", "Goblinajedrez corona el tablero. Prueba el siguiente.");
   } else if (allConnected) {
     setStatus("Faltan casillas", "Todas las parejas estan unidas, pero el tablero debe quedar lleno.");
   }
@@ -396,9 +353,7 @@ board.addEventListener("pointermove", (event) => {
 board.addEventListener("pointerup", finishPath);
 board.addEventListener("pointercancel", finishPath);
 
-startButton.addEventListener("click", () => {
-  overlay.classList.add("hidden");
-});
+startButton.addEventListener("click", () => overlay.classList.add("hidden"));
 
 undoButton.addEventListener("click", () => {
   const last = history.pop();
