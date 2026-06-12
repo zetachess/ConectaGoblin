@@ -4,9 +4,9 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="theme-color" content="#090b10">
-    <title>GOBLINAJEDREZ ConectaGoblin</title>
-    <meta name="description" content="Conecta las piezas de Goblinajedrez sobre un tablero responsive.">
-    <link rel="stylesheet" href="styles.css?v=3">
+    <title>GOBLINAJEDREZ ConectaGoblin 5x5</title>
+    <meta name="description" content="Conecta piezas de ajedrez en un tablero 5x5 responsive.">
+    <link rel="stylesheet" href="styles.css?v=4">
   </head>
   <body>
     <main class="game-shell" aria-label="GOBLINAJEDREZ ConectaGoblin">
@@ -28,24 +28,24 @@
       <section class="board-wrap">
         <div class="combo-pill active" id="messagePill" aria-live="polite">
           <strong id="statusTitle">Tu turno</strong>
-          <span id="statusText">Une cada pareja y llena todo el tablero.</span>
+          <span id="statusText">Une cada pareja y llena las 25 casillas.</span>
           <i></i>
         </div>
 
         <div class="board-frame">
           <div class="rank-labels" aria-hidden="true">
-            <span>8</span><span>7</span><span>6</span><span>5</span><span>4</span><span>3</span><span>2</span><span>1</span>
+            <span>5</span><span>4</span><span>3</span><span>2</span><span>1</span>
           </div>
           <div id="board" class="board" aria-label="Tablero de ConectaGoblin"></div>
           <div class="file-labels" aria-hidden="true">
-            <span>a</span><span>b</span><span>c</span><span>d</span><span>e</span><span>f</span><span>g</span><span>h</span>
+            <span>a</span><span>b</span><span>c</span><span>d</span><span>e</span>
           </div>
         </div>
 
         <div class="overlay" id="overlay">
           <img src="assets/goblin-logo.png" alt="">
           <h1>ConectaGoblin</h1>
-          <p>Arrastra desde una pieza hasta su pareja. No cruces caminos y ocupa las 64 casillas.</p>
+          <p>Arrastra desde una pieza hasta su pareja. No cruces caminos y ocupa las 25 casillas.</p>
           <button id="startButton" type="button">Jugar</button>
         </div>
       </section>
@@ -60,16 +60,9 @@
         <button class="level-button active" data-level="0">1</button>
         <button class="level-button" data-level="1">2</button>
         <button class="level-button" data-level="2">3</button>
-        <button class="level-button" data-level="3">4</button>
-        <button class="level-button" data-level="4">5</button>
-        <button class="level-button" data-level="5">6</button>
-        <button class="level-button" data-level="6">7</button>
-        <button class="level-button" data-level="7">8</button>
-        <button class="level-button" data-level="8">9</button>
-        <button class="level-button" data-level="9">10</button>
       </nav>
     </main>
 
-    <script src="app.js?v=3"></script>
+    <script src="app.js?v=4"></script>
   </body>
 </html>
