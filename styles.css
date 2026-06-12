@@ -436,7 +436,7 @@ button {
 }
 
 .level-picker {
-  grid-template-columns: repeat(5, minmax(0, 1fr));
+  grid-template-columns: repeat(10, minmax(0, 1fr));
 }
 
 .level-button.active {
@@ -499,6 +499,10 @@ button {
 
   .board-wrap {
     width: min(100%, calc(100vh - 166px));
+  }
+
+  .level-picker {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
   }
 
   .combo-pill {
